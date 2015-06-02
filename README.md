@@ -75,6 +75,7 @@ db.gametypes.insert({name: 'pentago'});
 db.gametypes.insert({name: 'tzaar'});
 db.gametypes.insert({name: 'yinsh'});
 db.gametypes.insert({name: 'zertz'});
+db.gametypes.insert({name: 'paletto'});
 ```
 
 Now just use the reset password feature to set a password.
