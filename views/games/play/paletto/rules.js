@@ -1,0 +1,1 @@
+//test du fusion du fichier rules
