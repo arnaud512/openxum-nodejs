@@ -1,1 +1,5 @@
-//test du fusion du fichier rules
+'use strict';
+
+exports.init = function (req, res) {
+    res.render('games/play/paletto/rules');
+};
