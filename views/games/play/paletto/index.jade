@@ -1,0 +1,13 @@
+extends ../../../../layouts/default
+block head
+    title Games
+block neck
+    link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
+block body
+    script(src='/javascripts/paletto/Paletto.js')
+    script(language='javascript').
+        $(document).ready(function () {
+            Pentago.load(function () {
+                new OpenXum.GamePage(Paletto, 'paletto', 0, #{color}, #{opponent_color}, '#{game_type}', '#{game_id}', #{mode}, '#{user.username}', '#{owner_id}', '#{opponent_id}', #{replay});
+            });
+        });
