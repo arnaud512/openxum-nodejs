@@ -1,6 +1,6 @@
 "use strict";
 
-Pentago.Manager = function (e, g, o, s) {
+Paletto.Manager = function (e, g, o, s) {
 // private attributes
     var _super = new OpenXum.Manager(e, g, o, s);
 
