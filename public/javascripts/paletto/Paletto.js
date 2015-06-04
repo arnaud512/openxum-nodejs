@@ -1,7 +1,7 @@
 // namespace Paletto
 var Paletto = { };
 
-Pentago.load = function (callback) {
+Paletto.load = function (callback) {
     $.getScript('/javascripts/utils/utils.js', function () {
         $.getScript('/javascripts/MCTS/MCTS.js', function () {
             $.getScript('/javascripts/MCTS/Node.js', function () {
