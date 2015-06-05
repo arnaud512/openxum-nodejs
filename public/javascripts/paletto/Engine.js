@@ -97,15 +97,75 @@ Paletto.Engine = function (t, c) {
             player_2_pieces[i]=0;
         }
 
-        // initialize game_board with random color (for now)
-        // TODO : initialize with paletto rules
+        // initialize game_board with paletto rules
+        var tmp_piece_color_array = new Array(6);
         game_board = new Array(6);
-        for(var x = 0; x < 6; x++){
-            game_board[x]= new Array(6);
+        for(var x = 0; x < 6; x++) {
+            game_board[x] = new Array(6);
+            tmp_piece_color_array[x] = 0;
+        }
+        var cpt_iter;
+        for(x = 0; x < 6; x++){
             for(var y = 0; y < 6 ; y++){
-                game_board[x][y] = Math.floor(Math.random() * 7);
+                cpt_iter = 0;
+                var tmp_piece_color;
+                // while color generated can't place here
+                do{
+                    // if cpt_iter > 30 => can't finish board! bcs last piece have same color neighbour
+                    if(cpt_iter > 30){
+                        return false;
+                    }
+                    else{
+                        tmp_piece_color = Math.floor(Math.random() * 6);
+                        cpt_iter++;
+                    }
+
+                } while(!is_possible_to_put_piece_color(x,y,tmp_piece_color,tmp_piece_color_array[tmp_piece_color]));
+                tmp_piece_color_array[tmp_piece_color]++;
+                game_board[x][y] = tmp_piece_color;
             }
         }
+        return true;
+    };
+    // check if piece have neighbour
+    var check_piece_top = function (x,y){
+        return (y != 0);
+    };
+    var check_piece_left = function (x,y){
+        return (x != 0);
+    };
+    var check_piece_right = function (x,y){
+        return (x != 5);
+    };
+    var check_piece_bottom = function (x,y){
+        return (y != 6);
+    };
+
+    // bool for know if this color is ok for this place
+    var is_possible_to_put_piece_color = function(x,y,piece_color,nb_piece_color){
+        if(nb_piece_color >=6) return false;
+
+        if(check_piece_top(x,y)){
+            if(game_board[x][y-1] == piece_color){
+                return false;
+            }
+        }
+        if(check_piece_left(x,y)){
+            if(game_board[x-1][y] == piece_color){
+                return false;
+            }
+        }
+        if(check_piece_right(x,y)){
+            if(game_board[x+1][y] == piece_color){
+                return false;
+            }
+        }
+        if(check_piece_bottom(x,y)){
+            if(game_board[x][y+1] == piece_color){
+                return false;
+            }
+        }
+        return true;
     };
 
 
@@ -122,6 +182,10 @@ Paletto.Engine = function (t, c) {
         if(color === Paletto.Color.JOUEUR_1){
             player_1_pieces[piece_color]++;
         }
+    };
+
+    this.get_piece_color_from_x_y = function(x,y){
+        return game_board[x][y];
     };
 
 // get the color of current player
@@ -211,10 +275,13 @@ Paletto.Engine = function (t, c) {
 //***************
 // init method is called when an instance is created
     var init = function(t, c) {
+        console.log("bbb");
         type  = t;
         color = c;
 
-        initialize_board();
+        do{
+            // redo initialisation while he can't get full board
+        }while(!initialize_board());
 
     };
 
