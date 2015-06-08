@@ -37,7 +37,7 @@ Paletto.Gui = function (c, e, l) {
         roundRect(0, 0, _canvas.width, _canvas.height, 17, true, true);
         _context.stroke();
         draw_grid_left();
-        //draw_grid_right();
+        draw_grid_right();
         draw_grid_center();
     };
     var roundRect = function (x, y, width, height, radius, fill, stroke) {
@@ -68,28 +68,67 @@ Paletto.Gui = function (c, e, l) {
     // plateau central
     var draw_grid_center = function () {
         var i, j;
+        var tmp_piece_color;
         // case
         for (i = 0; i < 6; ++i) {
             for (j = 0; j < 6; ++j) {
-                draw_hole(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY, _deltaX / 2.5)
+               tmp_piece_color= _engine.get_piece_color_from_x_y(i,j);
+                draw_hole(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY, _deltaX / 2.5);
+                draw_piece_colored(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY, _deltaX / 1.8, tmp_piece_color);
+
             }
         }
     };
-
+    // pièce bas gauche
     var draw_grid_left = function () {
-        var i, j;
+        var i, j, cpt =0;
+        var decalage= 0, deca=0;
         // case
         for (i = 0; i < 3; ++i) {
             for (j = 0; j < 2; ++j) {
-                draw_piece_colored(_offsetX + (i + 0.1) * _deltaX, _offsetY + (j -0.2) * _deltaY, _deltaX / 2.5, (i+j))
+                if(j == 1) decalage = 0.4;
+                else decalage =0;
+                if (i ==1) deca = 0.3;
+                else deca = 0;
+                if (i==2) deca = 0.6;
+                draw_piece_colored(_offsetX + (i -0.3+ decalage-deca) * _deltaX, _offsetY + (j +5.8- decalage ) * _deltaY, _deltaX / 1.8, cpt);
+
+                cpt++;
             }
         }
 
 
     };
-
+    //piece bas droit
     var draw_grid_right = function () {
-    }
+        var i, j, cpt =5;
+        var decalage= 0, deca= 0, deca2 = 0;
+        var x = 0;
+
+        // case
+        for (i = 0; i < 3; ++i) {
+            for (j = 0; j < 2; ++j) {
+                if(j == 0) decalage = 0.4;
+                else decalage =0;
+                if (j==1) deca2 = 0.4;
+                else deca2=0;
+                if (i ==1) deca = 0.3;
+                else deca = 0;
+                if (i==2) deca = 0.6;
+
+                x = cpt;
+                if (j==0) x--;
+                else x ++;
+                draw_piece_colored(_offsetX + (i +4.5+ decalage-deca) * _deltaX, _offsetY + (j +5.8- deca2 ) * _deltaY, _deltaX / 1.8, x);
+
+                cpt--;
+            }
+
+        }
+
+
+    };
+
     // trou
     var draw_hole = function (x, y, width) {
         var gr = _context.createRadialGradient(x, y, width / 10, x, y, width);
@@ -102,17 +141,46 @@ Paletto.Gui = function (c, e, l) {
         _context.closePath();
         _context.fill();
     };
+    //piece
     var draw_piece_colored = function (x, y, width, nb_color) {
-        var gr = _context.createRadialGradient(x, y, width / 10, x, y, width);
+        var gr = _context.createRadialGradient(x, y, width / 3, x, y, width);
+        _context.lineWidth = 1;
+        _context.strokeStyle = "#757D75";
         _context.beginPath();
-        gr.addColorStop(1, '#bfbfbf');
-        gr.addColorStop(0, '#757D75');
+        switch(nb_color){
+            case 0:
+                gr.addColorStop(1, '#000000');
+                gr.addColorStop(1, '#c0c0c0');
+                break;
+            case 1:
+                gr.addColorStop(1, '#ffffff');
+                gr.addColorStop(1, '#c0c0c0');
+                break;
+            case 2:
+                gr.addColorStop(1, '#ff0000');
+                gr.addColorStop(1, '#c0c0c0');
+                break;
+            case 3:
+                gr.addColorStop(1, '#00ff00');
+                gr.addColorStop(1, '#c0c0c0');
+                break;
+            case 4:
+                gr.addColorStop(1, '#0000ff');
+                gr.addColorStop(1, '#c0c0c0');
+                break;
+            default:
+                gr.addColorStop(1, '#ffff00');
+                gr.addColorStop(1, '#c0c0c0');
+
+        }
         _context.fillStyle = gr;
         _context.arc(x, y, width / 2, 0.0, 2 * Math.PI, false);
         _context.closePath();
         _context.fill();
-    };
+        _context.stroke();
 
+    };
+    //Engine.get_piece_color_from_x_y();
 
 
 // return the move that the player has made
