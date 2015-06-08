@@ -184,8 +184,14 @@ Paletto.Engine = function (t, c) {
         }
     };
 
+    // return color at xy
     this.get_piece_color_from_x_y = function(x,y){
         return game_board[x][y];
+    };
+
+    // return how many player have take one color
+    this.get_taken_color = function (player,color){
+        if(player == Paletto.Color.JOUEUR_1) return player_1_pieces[color];
     };
 
 // get the color of current player
@@ -257,20 +263,20 @@ Paletto.Engine = function (t, c) {
 //***************
 // methods for MCTS Artificial Intelligence
 // return the list of possible moves
-    this.get_possible_move_list = function () {
-    };
-
-// get the number of possible moves in current list
-    this.get_possible_move_number = function(list) {
-    };
-
-// remove first move in possible move list
-    this.remove_first_possible_move = function(list) {
-    };
-
-// select a move in list with specified index
-    this.select_move = function (list, index) {
-    };
+//    this.get_possible_move_list = function () {
+//    };
+//
+//// get the number of possible moves in current list
+//    this.get_possible_move_number = function(list) {
+//    };
+//
+//// remove first move in possible move list
+//    this.remove_first_possible_move = function(list) {
+//    };
+//
+//// select a move in list with specified index
+//    this.select_move = function (list, index) {
+//    };
 
 //***************
 // init method is called when an instance is created

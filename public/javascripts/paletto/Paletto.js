@@ -17,7 +17,9 @@ Paletto.load = function (callback) {
                                                     $.getScript('/javascripts/paletto/Manager.js', function () {
                                                         $.getScript('/javascripts/paletto/Gui.js', function () {
                                                             $.getScript('/javascripts/paletto/RandomPlayer.js', function () {
-                                                                callback();
+                                                                $.getScript('/javascripts/paletto/RemotePlayer.js', function () {
+                                                                    callback();
+                                                                });
                                                             });
                                                         });
                                                     });
