@@ -3,9 +3,9 @@
 Paletto.Gui = function (c, e, l) {
 
 // private attributes
-    var _engine = e;
-    var _color = c;
-    var _local = l;
+    var _engine;
+    var _color;
+    var _local;
 
     var _canvas;
     var _context;
@@ -21,9 +21,9 @@ Paletto.Gui = function (c, e, l) {
     var _offsetX;
     var _offsetY;
 
-    var _x_pos;
-    var _y_pos;
-    var _color_pos;
+    var _x_pos = null;
+    var _y_pos = null;
+    var _color_pos = null;
 
 // public methods
 // get color of player used GUI
@@ -34,6 +34,7 @@ Paletto.Gui = function (c, e, l) {
 // draw the graphical view of current state of game in canvas
     this.draw = function () {
         // fond
+        _context.clearRect(0,0,_canvas.width,_canvas.height);
 
         _context.lineWidth = 10;
         //cadre
@@ -45,7 +46,10 @@ Paletto.Gui = function (c, e, l) {
         draw_grid_right();
         draw_grid_center();
         draw_button();
-        console.log("x: " + _x_pos + "y: " + _y_pos);
+
+        //console.log("x: " + _x_pos + "y: " + _y_pos);
+
+        //draw_possible_piece();
 
     };
     var roundRect = function (x, y, width, height, radius, fill, stroke) {
@@ -129,7 +133,7 @@ Paletto.Gui = function (c, e, l) {
         _context.lineWidth = 1;
         _context.fillStyle = "#dfdfdf";
         _context.strokeStyle = "#757D75";
-        _context.fills
+        _context.fill();
 
         _context.beginPath();
         _context.moveTo(_offsetX + position_1, _offsetY +380);
@@ -148,7 +152,7 @@ Paletto.Gui = function (c, e, l) {
         _context.fill();
         _context.stroke();
 
-    }
+    };
     //piece bas droit
     var draw_grid_right = function () {
         var i, j, cpt =5;
@@ -191,6 +195,18 @@ Paletto.Gui = function (c, e, l) {
         _context.closePath();
         _context.fill();
     };
+
+    var draw_piece_selected = function (x, y, width){
+        var gr = _context.createRadialGradient(x, y, width / 10, x, y, width);
+        _context.beginPath();
+        _context.fillStyle = "#ffffff";
+        _context.strokeStyle = "#757D75";
+        _context.arc(x, y, width / 2, 0.0, 2 * Math.PI, false);
+        _context.closePath();
+        _context.fill();
+        _context.stroke();
+    };
+
     //piece
     var draw_piece_colored = function (x, y, width, nb_color) {
         var gr = _context.createRadialGradient(x, y, width / 3, x, y, width);
@@ -264,18 +280,55 @@ Paletto.Gui = function (c, e, l) {
         _context.fillStyle = "#989898";
         _context.font="30px Verdana";
         _context.beginPath();
-        _context.fillText("Next",257,510);
+        _context.fillText("Next",255,510);
         _context.closePath();
         _context.fill();
+    };
+
+
+    /*var draw_possible_piece = function (){
+        var pos = getClickPosition(event);
+        var i, j;
+        for (i = 0; i < 6; ++i) {
+            for (j = 0; j < 6; ++j) {
+                var tmp = point_in_circle(pos.x, pos.y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
+                if (tmp){
+                    draw_piece_selected(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 4);
+                }
+
+            }
+        }
+    };*/
+
+    var mousse_inside = function() {
+        //if
     }
 
-
+    var onMove = function (event) {
+        // var rec =canvas.getBoundingClientRect();
+        var pos = getClickPosition(event);
+        console.log(pos);
+        var i, j;
+        for (i = 0; i < 6; ++i) {
+            for (j = 0; j < 6; ++j) {
+                var tmp = point_in_circle(pos.x, pos.y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
+                if (tmp){
+                    draw_piece_selected(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 5);
+                    return;
+                }
+                else {
+                    console.log("Pas inside");
+                    _manager.redraw();
+                }
+            }
+        }
+    };
     // x,y is the point to test
     // cx, cy is circle center, and radius is circle radius
     var point_in_circle = function(x, y, cx, cy, radius) {
         var distancesquared = (x - cx) * (x - cx) + (y - cy) * (y - cy);
         return distancesquared <= radius * radius;
-    }
+    };
 
    // _offsetX + 6 * _deltaX -10
 // return the move that the player has made
@@ -296,14 +349,14 @@ Paletto.Gui = function (c, e, l) {
 // apply a move and animate
 // if no animation, call manager.play
     this.move = function (move, color) {
-        //manager.play();
+        //_manager.play();
     };
 
 // ready is called when opponent is present (online case)
     this.ready = function (r) {
-        opponentPresent = r;
-        if (manager) {
-            manager.redraw();
+        var opponentPresent = r;
+        if (_manager) {
+            _manager.redraw();
         }
     };
 
@@ -322,6 +375,7 @@ Paletto.Gui = function (c, e, l) {
         _offsetY = _height / 2 - _deltaY * 3;
 
         _canvas.addEventListener("click", onClick);
+        _canvas.addEventListener('mousemove', onMove, false);
         this.draw();
     };
 
@@ -332,7 +386,9 @@ Paletto.Gui = function (c, e, l) {
 
 // reset the informations of previous move
     this.unselect = function () {
-
+        _x_pos = null;
+        _y_pos = null;
+        _color_pos = null;
     };
 
 // private methods
@@ -344,8 +400,10 @@ Paletto.Gui = function (c, e, l) {
     };
 
 // initialize the state of game
-    var init = function () {
-
+    var init = function (c, e, l) {
+        _engine = e;
+        _color = c;
+        _local = l;
     };
 
 // if interaction is click action, verify if the phase of engine is equal to YYYY (a phase of game)
@@ -363,6 +421,7 @@ Paletto.Gui = function (c, e, l) {
                     if (_color_pos != -1){
                         _x_pos = i;
                         _y_pos = j;
+                        //_manager.play();
                     }
                 }
 
@@ -370,12 +429,11 @@ Paletto.Gui = function (c, e, l) {
         }
 
         if (_engine.phase() === Paletto.Phase.TAKE_PIECES) {
-          //  _manager.play();
+           // _manager.play();
         }
     };
 
-// call init method
-    init();
-};
 
-// #757D75
+// call init method
+    init(c, e, l);
+};
