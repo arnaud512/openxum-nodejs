@@ -2,7 +2,7 @@
 
 Paletto.Gui = function (c, e, l) {
 
-// private attributes
+    // private attributes
     var _engine;
     var _color;
     var _local;
@@ -25,13 +25,13 @@ Paletto.Gui = function (c, e, l) {
     var _y_pos = null;
     var _color_pos = null;
 
-// public methods
-// get color of player used GUI
+    // public methods
+    // get color of player used GUI
     this.color = function () {
         return _color;
     };
 
-// draw the graphical view of current state of game in canvas
+    // draw the graphical view of current state of game in canvas
     this.draw = function () {
         // fond
         _context.clearRect(0,0,_canvas.width,_canvas.height);
@@ -85,7 +85,7 @@ Paletto.Gui = function (c, e, l) {
         // case
         for (i = 0; i < 6; ++i) {
             for (j = 0; j < 6; ++j) {
-               tmp_piece_color= _engine.get_piece_color_from_x_y(i,j);
+                tmp_piece_color= _engine.get_piece_color_from_x_y(i,j);
                 draw_hole(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 2.5);
                 draw_piece_colored(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 1.8, tmp_piece_color);
 
@@ -286,43 +286,35 @@ Paletto.Gui = function (c, e, l) {
     };
 
 
-    /*var draw_possible_piece = function (){
-        var pos = getClickPosition(event);
-        var i, j;
-        for (i = 0; i < 6; ++i) {
-            for (j = 0; j < 6; ++j) {
-                var tmp = point_in_circle(pos.x, pos.y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
-                if (tmp){
-                    draw_piece_selected(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 4);
-                }
-
-            }
-        }
-    };*/
-
     var mousse_inside = function() {
         //if
-    }
+    };
 
-    var onMove = function (event) {
-        // var rec =canvas.getBoundingClientRect();
-        var pos = getClickPosition(event);
-        console.log(pos);
-        var i, j;
-        for (i = 0; i < 6; ++i) {
-            for (j = 0; j < 6; ++j) {
-                var tmp = point_in_circle(pos.x, pos.y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
-                if (tmp){
-                    draw_piece_selected(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 5);
-                    return;
-                }
-                else {
-                    console.log("Pas inside");
-                    _manager.redraw();
-                }
+
+    var get_pieces_position = function(x,y){
+        for (var i = 0; i < 6; ++i) {
+            for (var j = 0; j < 6; ++j) {
+                var tmp = point_in_circle(x, y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
+                if(tmp) return {x:i,y:j};
             }
         }
+        return null;
     };
+
+
+    var onMove = function (event) {
+        var pos = getClickPosition(event);
+        var xy = get_pieces_position(pos.x,pos.y);
+        if(xy) {
+            if (_engine.get_piece_color_from_x_y(xy.x, xy.y) != -1) {
+                draw_piece_selected(_offsetX + (xy.x + 0.5) * _deltaX, _offsetY + (xy.y - 0.2) * _deltaY - 9, _deltaX / 5);
+            }
+        }
+        else {
+            _manager.redraw();
+        }
+    };
+
     // x,y is the point to test
     // cx, cy is circle center, and radius is circle radius
     var point_in_circle = function(x, y, cx, cy, radius) {
@@ -330,29 +322,29 @@ Paletto.Gui = function (c, e, l) {
         return distancesquared <= radius * radius;
     };
 
-   // _offsetX + 6 * _deltaX -10
-// return the move that the player has made
+    // _offsetX + 6 * _deltaX -10
+    // return the move that the player has made
     this.get_move = function () {
-        return new Paletto.Move(Paletto.color.JOUEUR_1,_x_pos,_y_pos, _color_pos);
+        return new Paletto.Move(Paletto.Color.JOUEUR_1,_x_pos,_y_pos, _color_pos);
     };
 
-// return true if when a move is apply, an animation works
+    // return true if when a move is apply, an animation works
     this.is_animate = function () {
         return false;
     };
 
-// the gui is not remote, return always false
+    // the gui is not remote, return always false
     this.is_remote = function () {
         return false;
     };
 
-// apply a move and animate
-// if no animation, call manager.play
+    // apply a move and animate
+    // if no animation, call manager.play
     this.move = function (move, color) {
         //_manager.play();
     };
 
-// ready is called when opponent is present (online case)
+    // ready is called when opponent is present (online case)
     this.ready = function (r) {
         var opponentPresent = r;
         if (_manager) {
@@ -360,7 +352,7 @@ Paletto.Gui = function (c, e, l) {
         }
     };
 
-// set the canvas, the event listener and scales
+    // set the canvas, the event listener and scales
     this.set_canvas = function (c) {
         _canvas = c;
         _context = c.getContext("2d");
@@ -379,61 +371,56 @@ Paletto.Gui = function (c, e, l) {
         this.draw();
     };
 
-// set the manager
+    // set the manager
     this.set_manager = function (m) {
         _manager = m;
     };
 
-// reset the informations of previous move
+    // reset the informations of previous move
     this.unselect = function () {
         _x_pos = null;
         _y_pos = null;
         _color_pos = null;
     };
 
-// private methods
-// compute the coordinates in canvas coordinates system
+    // private methods
+    // compute the coordinates in canvas coordinates system
     var getClickPosition = function (e) {
         var rect = _canvas.getBoundingClientRect();
 
         return { x: (e.clientX - rect.left) * _scaleX, y: (e.clientY - rect.top) * _scaleY };
     };
 
-// initialize the state of game
+    // initialize the state of game
     var init = function (c, e, l) {
         _engine = e;
         _color = c;
         _local = l;
     };
 
-// if interaction is click action, verify if the phase of engine is equal to YYYY (a phase of game)
-// and differents interactions are realized
+    // if interaction is click action, verify if the phase of engine is equal to YYYY (a phase of game)
+    // and differents interactions are realized
     var onClick = function (event) {
         var pos = getClickPosition(event);
-        var i, j;
-
-        for (i = 0; i < 6; ++i) {
-            for (j = 0; j < 6; ++j) {
-                var tmp = point_in_circle(pos.x, pos.y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
-                if (tmp){
-                    _color_pos = _engine.get_piece_color_from_x_y(i, j);
-                    console.log(i+' '+j);
-                    if (_color_pos != -1){
-                        _x_pos = i;
-                        _y_pos = j;
-                        //_manager.play();
+        var xy = get_pieces_position(pos.x,pos.y);
+        if(xy){
+            var tmp_color_piece = _engine.get_piece_color_from_x_y(xy.x, xy.y);
+            if (tmp_color_piece != -1){
+                var list = _engine.get_possible_taken_list();
+                for (var k =0; k<list.length; k++){
+                    if(xy.x==list[k].x && xy.y==list[k].y){
+                        _x_pos = xy.x;
+                        _y_pos = xy.y;
+                        _color_pos = tmp_color_piece;
+                        _manager.play();
                     }
                 }
-
             }
-        }
-
-        if (_engine.phase() === Paletto.Phase.TAKE_PIECES) {
-           // _manager.play();
         }
     };
 
 
-// call init method
+    // call init method
     init(c, e, l);
 };
+
