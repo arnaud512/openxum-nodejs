@@ -5,8 +5,7 @@ Paletto.PieceColor = {black : 0, white : 1, red : 2, green : 3, blue : 4, yellow
 Paletto.Phase = { TAKE_PIECES: 0, FINISH: 1 };
 // TODO : if player want to end turn after take a less 1 pieces => Phase = FINISH
 
-
-Paletto.Move = function (c) {
+Paletto.Move = function (c,fx,fy,p) {
 
     // private attributes
     var _color; // player
@@ -66,7 +65,7 @@ Paletto.Move = function (c) {
     };
 
     // call init method
-    init(c,f,p);
+    init(c,fx,fy,p);
 };
 
 
@@ -86,6 +85,8 @@ Paletto.Engine = function (t, c) {
     var game_board;
     var player_1_pieces;
     var player_2_pieces;
+
+    var self = this;
 
 //private method
     var initialize_board = function (){
@@ -138,7 +139,7 @@ Paletto.Engine = function (t, c) {
         return (x != 5);
     };
     var check_piece_bottom = function (x,y){
-        return (y != 6);
+        return (y != 5);
     };
 
     // bool for know if this color is ok for this place
@@ -230,6 +231,38 @@ Paletto.Engine = function (t, c) {
         }
     };
 
+    // true if piece can be taken
+    this.possible_taken_piece = function(x,y){
+        if (game_board[x][y]==-1) return false;
+        var cpt = 4;
+        if(check_piece_top(x,y)){
+            if(game_board[x][y-1] != -1) cpt--;
+        }
+        if(check_piece_left(x,y)){
+            if(game_board[x-1][y] != -1) cpt--;
+        }
+        if(check_piece_right(x,y)){
+            if(game_board[x+1][y] != -1) cpt--;
+        }
+        if(check_piece_bottom(x,y)){
+            if(game_board[x][y+1] != -1) cpt--;
+        }
+        return (cpt >=2);
+    };
+
+    // return possible list
+    this.get_possible_taken_list = function() {
+        var list = [];
+        for(var x = 0; x < 6; x++){
+            for(var y = 0; y < 6 ; y++){
+                if(this.possible_taken_piece(x,y)){
+                    list.push({x: x, y: y });
+                }
+            }
+        }
+        return list;
+    };
+
 //***************
 // two methods to clone an engine
 // mainly method: create a new object and set all attributes (values are passed as parameters)
@@ -263,32 +296,39 @@ Paletto.Engine = function (t, c) {
 //***************
 // methods for MCTS Artificial Intelligence
 // return the list of possible moves
-//    this.get_possible_move_list = function () {
-//    };
-//
-//// get the number of possible moves in current list
-//    this.get_possible_move_number = function(list) {
-//    };
-//
-//// remove first move in possible move list
-//    this.remove_first_possible_move = function(list) {
-//    };
-//
-//// select a move in list with specified index
-//    this.select_move = function (list, index) {
-//    };
+    this.get_possible_move_list = function () {
+        return this.get_possible_taken_list();
+    };
+
+// get the number of possible moves in current list
+    this.get_possible_move_number = function(list) {
+        return this.get_possible_taken_list().length;
+    };
+
+// remove first move in possible move list
+    this.remove_first_possible_move = function(list) {
+        var L = list;
+
+        L.list.shift();
+        return L;
+    };
+
+// select a move in list with specified index
+    this.select_move = function (list, index) {
+        return new Paletto.Move(list, list.list[index]);
+    };
 
 //***************
 // init method is called when an instance is created
     var init = function(t, c) {
-        console.log("bbb");
+
+        console.log("called paletto/Engine init");
         type  = t;
         color = c;
 
         do{
             // redo initialisation while he can't get full board
         }while(!initialize_board());
-
     };
 
 // call init method with two parameters: t, the type of game and c, the color of first player
