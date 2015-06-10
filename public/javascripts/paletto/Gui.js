@@ -24,6 +24,7 @@ Paletto.Gui = function (c, e, l) {
     var _x_pos = null;
     var _y_pos = null;
     var _color_pos = null;
+    var _button_hover=false;
 
     // public methods
     // get color of player used GUI
@@ -105,28 +106,82 @@ Paletto.Gui = function (c, e, l) {
     };
     // piece bas gauche
     var draw_grid_left = function () {
-        var i, j, cpt =0;
-        var decalage= 0, deca= 0, decalage2;
+        var i, j, cpt = 0;
+        var decalage = 0, deca = 0, decalage2;
         // case
         for (i = 0; i < 3; ++i) {
             for (j = 0; j < 2; ++j) {
-                if(j == 1) decalage = 0.34;
-                else decalage =0;
-                if(j == 1) decalage2 = 0.4;
-                else decalage2 =0;
-                if (i ==1) deca = 0.3;
+                if (j == 1) decalage = 0.34;
+                else decalage = 0;
+                if (j == 1) decalage2 = 0.4;
+                else decalage2 = 0;
+                if (i == 1) deca = 0.3;
                 else deca = 0;
-                if (i==2) deca = 0.6;
-                draw_piece_colored(_offsetX + (i -0.4+ decalage-deca) * _deltaX, _offsetY + (j +5.82- decalage2 ) * _deltaY, _deltaX / 1.8, cpt);
+                if (i == 2) deca = 0.6;
+                draw_piece_colored(_offsetX + (i - 0.4 + decalage - deca) * _deltaX, _offsetY + (j + 5.82 - decalage2 ) * _deltaY, _deltaX / 1.8, cpt);
+
+                // Aficher le nb de piece
+                var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_1, cpt);
+                _context.fillStyle = "#989898";
+                _context.font="26px Verdana";
+                _context.lineWidth = 3.2;
+                _context.strokeStyle = "#757D75";
+                _context.beginPath();
+                _context.strokeText(tmp,_offsetX + (i -0.484+ decalage-deca) * _deltaX,_offsetY + (j +5.93- decalage2 ) * _deltaY);
+                _context.closePath();
+                _context.fill();
+                _context.stroke();
 
                 cpt++;
             }
         }
+    };
 
+
+    //piece bas droit
+    var draw_grid_right = function () {
+        var i, j, cpt =5;
+        var decalage= 0, deca= 0, deca2 = 0;
+        var x = 0;
+
+        // case
+        for (i = 0; i < 3; ++i) {
+            for (j = 0; j < 2; ++j) {
+                if(j == 0) decalage = 0.34;
+                else decalage =0;
+                if (j==1) deca2 = 0.4;
+                else deca2=0;
+                if (i ==1) deca = 0.3;
+                else deca = 0;
+                if (i==2) deca = 0.6;
+
+                x = cpt;
+                if (j==0) x--;
+                else x ++;
+                draw_piece_colored(_offsetX + (i +4.67+ decalage-deca) * _deltaX, _offsetY + (j +5.82- deca2 ) * _deltaY, _deltaX / 1.8, x);
+
+
+                // Aficher le nb de piece
+                var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_1, x);
+                _context.fillStyle = "#989898";
+                _context.font="26px Verdana";
+                _context.lineWidth = 3.2;
+                _context.strokeStyle = "#757D75";
+                _context.beginPath();
+                _context.strokeText(tmp,_offsetX + (i +4.58+ decalage-deca) * _deltaX, _offsetY + (j +5.925- deca2 ) * _deltaY, _deltaX / 1.8);
+                _context.closePath();
+                _context.fill();
+                _context.stroke();
+
+
+                cpt--;
+            }
+
+        }
 
 
     };
-
+    // design gris en bas
     var draw_rec = function () {
         var position_1 =-68 ;
         var position_2 =498 ;
@@ -153,35 +208,6 @@ Paletto.Gui = function (c, e, l) {
         _context.stroke();
 
     };
-    //piece bas droit
-    var draw_grid_right = function () {
-        var i, j, cpt =5;
-        var decalage= 0, deca= 0, deca2 = 0;
-        var x = 0;
-
-        // case
-        for (i = 0; i < 3; ++i) {
-            for (j = 0; j < 2; ++j) {
-                if(j == 0) decalage = 0.34;
-                else decalage =0;
-                if (j==1) deca2 = 0.4;
-                else deca2=0;
-                if (i ==1) deca = 0.3;
-                else deca = 0;
-                if (i==2) deca = 0.6;
-
-                x = cpt;
-                if (j==0) x--;
-                else x ++;
-                draw_piece_colored(_offsetX + (i +4.67+ decalage-deca) * _deltaX, _offsetY + (j +5.82- deca2 ) * _deltaY, _deltaX / 1.8, x);
-
-                cpt--;
-            }
-
-        }
-
-
-    };
 
     // trou
     var draw_hole = function (x, y, width) {
@@ -196,6 +222,7 @@ Paletto.Gui = function (c, e, l) {
         _context.fill();
     };
 
+    // piece selectionne
     var draw_piece_selected = function (x, y, width){
         var gr = _context.createRadialGradient(x, y, width / 10, x, y, width);
         _context.beginPath();
@@ -277,21 +304,23 @@ Paletto.Gui = function (c, e, l) {
         _context.fill();
         _context.stroke();
 
-        _context.fillStyle = "#989898";
-        _context.font="30px Verdana";
-        _context.beginPath();
-        _context.fillText("Next",255,510);
-        _context.closePath();
-        _context.fill();
+        if (_engine.phase() == Paletto.Phase.CONTINUE_TAKING) {
+            if (_button_hover)_context.fillStyle = "#F7FF3C";
+            else _context.fillStyle = "#989898";
+            _context.font = "30px Verdana";
+            _context.beginPath();
+            _context.fillText("Next", 255, 510);
+            _context.closePath();
+            _context.fill();
+        }
     };
 
-
-    var mousse_inside = function() {
-        //if
-    };
 
 
     var get_pieces_position = function(x,y){
+        if(point_in_rectangle(x, y, _offsetX + 94, _offsetY +380, _offsetX + 336, _offsetY +380, _offsetX + 336 - 70,_offsetY +498, _offsetX + 94 + 70,_offsetY +498 ) == true){
+            return {x:-1, y:-1};
+        };
         for (var i = 0; i < 6; ++i) {
             for (var j = 0; j < 6; ++j) {
                 var tmp = point_in_circle(x, y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
@@ -303,15 +332,24 @@ Paletto.Gui = function (c, e, l) {
 
 
     var onMove = function (event) {
-        var pos = getClickPosition(event);
-        var xy = get_pieces_position(pos.x,pos.y);
-        if(xy) {
-            if (_engine.get_piece_color_from_x_y(xy.x, xy.y) != -1) {
-                draw_piece_selected(_offsetX + (xy.x + 0.5) * _deltaX, _offsetY + (xy.y - 0.2) * _deltaY - 9, _deltaX / 5);
+        if (_engine.current_color()=== _color){
+            var pos = getClickPosition(event);
+            var xy = get_pieces_position(pos.x,pos.y);
+            if(xy) {
+                if(xy.x == -1 && xy.y == -1){
+                    _button_hover = true;
+                    _manager.redraw();
+                }
+                else if (_engine.get_piece_color_from_x_y(xy.x, xy.y) != -1) {
+                        draw_piece_selected(_offsetX + (xy.x + 0.5) * _deltaX, _offsetY + (xy.y - 0.2) * _deltaY - 9, _deltaX / 5);
+                }
+
+
             }
-        }
-        else {
-            _manager.redraw();
+            else {
+                _button_hover = false;
+                _manager.redraw();
+            }
         }
     };
 
@@ -321,6 +359,33 @@ Paletto.Gui = function (c, e, l) {
         var distancesquared = (x - cx) * (x - cx) + (y - cy) * (y - cy);
         return distancesquared <= radius * radius;
     };
+
+    // souris dans rectangle
+    var point_in_rectangle = function(x, y, x1, y1, x2, y2, x3, y3, x4, y4) {
+        var rectangle = false, triangle_left = false;
+
+        /*console.log('x1 '+x1+'\n y1 '+y1+'\n x2 '+x2+'\n y2 '+y2+'\n x3 '+x3+'\n y3 '+y3+'\n x4 '+x4+'\n y4 '+y4);
+
+
+        var aire_triangle_left =calc_tri_rea(x1, y1, x4, y1, x4, y4);
+        console.log(aire_triangle_left);
+        var Area1 = calc_tri_rea(x, y, x2, y2, x3, y3);
+        var Area2 = calc_tri_rea(x, y, x1, y1, x3, y3);
+        var Area3 = calc_tri_rea(x, y, x1, y1, x2, y2);
+
+        if((Area1 + Area2 + Area3) > aire_triangle_left) triangle_left = false;
+        else triangle_left =true;*/
+
+        if ((x> x4 && x<x3) && (y>y1 &&y<y3)) rectangle = true;
+        ////if ()
+        return (rectangle /*|| triangle_left*/);
+    };
+    // calcule aire triangle
+   var calc_tri_rea = function(x1, y1, x2, y2, x3, y3){
+        var det = 0;
+        det = ((x1 - x3) * (y2 - y3)) - ((x2 - x3) * (y1 - y3));
+        return (det / 2);
+    }
 
     // _offsetX + 6 * _deltaX -10
     // return the move that the player has made
@@ -404,15 +469,21 @@ Paletto.Gui = function (c, e, l) {
         var pos = getClickPosition(event);
         var xy = get_pieces_position(pos.x,pos.y);
         if(xy){
-            var tmp_color_piece = _engine.get_piece_color_from_x_y(xy.x, xy.y);
-            if (tmp_color_piece != -1){
-                var list = _engine.get_possible_taken_list();
-                for (var k =0; k<list.length; k++){
-                    if(xy.x==list[k].x && xy.y==list[k].y){
-                        _x_pos = xy.x;
-                        _y_pos = xy.y;
-                        _color_pos = tmp_color_piece;
-                        _manager.play();
+            if (xy.x ==-1 && xy.y ==-1){
+                console.log("Bouton clic");
+                _manager.next();
+            }
+            else {
+                var tmp_color_piece = _engine.get_piece_color_from_x_y(xy.x, xy.y);
+                if (tmp_color_piece != -1) {
+                    var list = _engine.get_possible_taken_list();
+                    for (var k = 0; k < list.length; k++) {
+                        if (xy.x == list[k].x && xy.y == list[k].y) {
+                            _x_pos = xy.x;
+                            _y_pos = xy.y;
+                            _color_pos = tmp_color_piece;
+                            _manager.play();
+                        }
                     }
                 }
             }
