@@ -1,11 +1,12 @@
 'use strict';
 
-Paletto.Gui = function (c, e, l) {
+Paletto.Gui = function (c, e, l, g) {
 
     // private attributes
     var _engine;
     var _color;
     var _local;
+    var _gui;
 
     var _canvas;
     var _context;
@@ -25,6 +26,8 @@ Paletto.Gui = function (c, e, l) {
     var _y_pos = null;
     var _color_pos = null;
     var _button_hover=false;
+    var _button_clicked = false;
+    var _color_piece_played = null;
 
     // public methods
     // get color of player used GUI
@@ -89,10 +92,8 @@ Paletto.Gui = function (c, e, l) {
                 tmp_piece_color= _engine.get_piece_color_from_x_y(i,j);
                 draw_hole(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 2.5);
                 draw_piece_colored(_offsetX + (i + 0.5) * _deltaX, _offsetY + (j -0.2) * _deltaY-9, _deltaX / 1.8, tmp_piece_color);
-
             }
         }
-
         // Ligne
         _context.lineWidth = 5;
         _context.strokeStyle = "#757D75";
@@ -162,7 +163,7 @@ Paletto.Gui = function (c, e, l) {
 
 
                 // Aficher le nb de piece
-                var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_1, x);
+                var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_2, x);
                 _context.fillStyle = "#989898";
                 _context.font="26px Verdana";
                 _context.lineWidth = 3.2;
@@ -320,7 +321,7 @@ Paletto.Gui = function (c, e, l) {
     var get_pieces_position = function(x,y){
         if(point_in_rectangle(x, y, _offsetX + 94, _offsetY +380, _offsetX + 336, _offsetY +380, _offsetX + 336 - 70,_offsetY +498, _offsetX + 94 + 70,_offsetY +498 ) == true){
             return {x:-1, y:-1};
-        };
+        }
         for (var i = 0; i < 6; ++i) {
             for (var j = 0; j < 6; ++j) {
                 var tmp = point_in_circle(x, y, _offsetX + (i + 0.5) * _deltaX, _offsetY + (j - 0.2) * _deltaY - 9, (_deltaX / 1.8) / 2);
@@ -332,7 +333,7 @@ Paletto.Gui = function (c, e, l) {
 
 
     var onMove = function (event) {
-        if (_engine.current_color()=== _color){
+        if (_engine.current_color()=== _color || _gui){
             var pos = getClickPosition(event);
             var xy = get_pieces_position(pos.x,pos.y);
             if(xy) {
@@ -385,12 +386,17 @@ Paletto.Gui = function (c, e, l) {
         var det = 0;
         det = ((x1 - x3) * (y2 - y3)) - ((x2 - x3) * (y1 - y3));
         return (det / 2);
-    }
+    };
 
     // _offsetX + 6 * _deltaX -10
     // return the move that the player has made
     this.get_move = function () {
-        return new Paletto.Move(Paletto.Color.JOUEUR_1,_x_pos,_y_pos, _color_pos);
+        if(_button_clicked){
+            _button_clicked = false;
+            return new Paletto.Move(_engine.current_color(),0,0,0,true);
+        }
+        console.log('ee');
+        return new Paletto.Move(_engine.current_color(),_x_pos,_y_pos, _color_pos,false);
     };
 
     // return true if when a move is apply, an animation works
@@ -457,32 +463,42 @@ Paletto.Gui = function (c, e, l) {
     };
 
     // initialize the state of game
-    var init = function (c, e, l) {
+    var init = function (c, e, l, g) {
         _engine = e;
         _color = c;
         _local = l;
+        _gui = g;
     };
 
     // if interaction is click action, verify if the phase of engine is equal to YYYY (a phase of game)
     // and differents interactions are realized
     var onClick = function (event) {
-        var pos = getClickPosition(event);
-        var xy = get_pieces_position(pos.x,pos.y);
-        if(xy){
-            if (xy.x ==-1 && xy.y ==-1){
-                console.log("Bouton clic");
-                _manager.next();
-            }
-            else {
-                var tmp_color_piece = _engine.get_piece_color_from_x_y(xy.x, xy.y);
-                if (tmp_color_piece != -1) {
-                    var list = _engine.get_possible_taken_list();
-                    for (var k = 0; k < list.length; k++) {
-                        if (xy.x == list[k].x && xy.y == list[k].y) {
-                            _x_pos = xy.x;
-                            _y_pos = xy.y;
-                            _color_pos = tmp_color_piece;
-                            _manager.play();
+        if (_engine.current_color()=== _color || _gui){
+            var pos = getClickPosition(event);
+            var xy = get_pieces_position(pos.x,pos.y);
+            if(xy){
+                if (xy.x ==-1 && xy.y ==-1){
+                    if(_engine.phase()==Paletto.Phase.CONTINUE_TAKING){
+                        console.log("Bouton clic");
+                        _button_clicked = true;
+                        _color_piece_played = null;
+                        _manager.play();
+                    }
+                }
+                else {
+                    var tmp_color_piece = _engine.get_piece_color_from_x_y(xy.x, xy.y);
+                    if (tmp_color_piece != -1) {
+                        if(_color_piece_played == null || _color_piece_played == tmp_color_piece){
+                            _color_piece_played = tmp_color_piece;
+                            var list = _engine.get_possible_taken_list();
+                            for (var k = 0; k < list.length; k++) {
+                                if (xy.x == list[k].x && xy.y == list[k].y) {
+                                    _x_pos = xy.x;
+                                    _y_pos = xy.y;
+                                    _color_pos = tmp_color_piece;
+                                    _manager.play();
+                                }
+                            }
                         }
                     }
                 }
@@ -492,6 +508,6 @@ Paletto.Gui = function (c, e, l) {
 
 
     // call init method
-    init(c, e, l);
+    init(c, e, l, g);
 };
 

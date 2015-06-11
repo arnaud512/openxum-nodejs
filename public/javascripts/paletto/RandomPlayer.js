@@ -20,7 +20,7 @@ Paletto.RandomPlayer = function (c, e) {
 
     this.move = function () {
         //var move = null;
-        if(_engine.phase() === Paletto.Phase.TAKE_PIECES){
+        if(_engine.phase() === Paletto.Phase.FIRST_TAKE){
             var list = _engine.get_possible_taken_list();
 
             var alea = Math.floor(Math.random() * list.length);

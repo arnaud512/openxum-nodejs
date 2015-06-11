@@ -2,28 +2,50 @@
 
 Paletto.Color = { JOUEUR_1: 0, JOUEUR_2: 1 };
 Paletto.PieceColor = {black : 0, white : 1, red : 2, green : 3, blue : 4, yellow : 5};
-Paletto.Phase = { TAKE_PIECES: 0, FINISH: 1 };
-// TODO : if player want to end turn after take a less 1 pieces => Phase = FINISH
+Paletto.Phase = { FIRST_TAKE: 0, CONTINUE_TAKING: 1};
+Paletto.Board = [[0,4,3,0,3,1],[2,3,4,5,1,2],[3,2,3,2,0,1],[0,1,5,4,1,3],[4,5,1,2,5,4],[5,2,5,0,4,0]];
 
-Paletto.Move = function (c,fx,fy,p) {
+Paletto.Move = function (c,fx,fy,p,b) {
 
     // private attributes
     var _color; // player
     var _from_x; // where player take piece
     var _from_y;
     var _piece_color; // color player take
+    var _button_next; // true if player cliked next
 
     // private methods
     // init method is called when an instance is created
-    var init = function (color, from_x, from_y, piece_color) {
+    var init = function (color, from_x, from_y, piece_color, button_next) {
         _color = color;
         _from_x = from_x;
         _from_y = from_y;
         _piece_color = piece_color;
+        _button_next = button_next;
     };
+
 
     // public methods
     // methods to access of private attributes
+    this.get_string_color_name = function(color){
+        switch(parseInt(color)) {
+            case 0:
+                return 'black';
+            case 1:
+                return 'white';
+            case 2:
+                return 'red';
+            case 3:
+                return 'green';
+            case 4:
+                return 'blue';
+            case 5:
+                return 'yellow';
+            default:
+                return 'error';
+        }
+    };
+
     this.color = function (){
         return _color;
     };
@@ -40,32 +62,41 @@ Paletto.Move = function (c,fx,fy,p) {
         return _piece_color;
     };
 
+    this.button_next = function(){
+        return _button_next;
+    };
+
 
     // methods to build (or parse) the textual representation of a move
     this.get = function () {
-        return (_color === Paletto.Color.JOUEUR_1 ? 'P1' : 'P2') + _piece_color +  _from_x + _from_y ;
+        var bool_button = 0;
+        if(_button_next == true) bool_button = 1;
+        return (_color === Paletto.Color.JOUEUR_1 ? '1' : '2') + _piece_color + '' + _from_x + '' + _from_y + '' + bool_button;
     };
 
     this.parse = function (str) {
-        _color = str.charAt(0) === 'B' ? Paletto.Color.JOUEUR_1 : Paletto.Color.JOUEUR_2;
+        _color = str.charAt(0) === '1' ? Paletto.Color.JOUEUR_1 : Paletto.Color.JOUEUR_2;
         _piece_color = str.charAt(1);
         _from_x = str.charAt(2);
         _from_y = str.charAt(3);
-
+        _button_next = (str.charAt(4)==1);
+        console.log(str);
     };
 
     // build an object representation with all public attributes
     this.to_object = function () {
-        return { color: _color, from_x: _from_x, from_y : _from_y , piece_color: _piece_color};
+        return { color: _color, from_x: _from_x, from_y : _from_y , piece_color: _piece_color, button_next: _button_next};
     };
 
     // build a string with a sentence describe the move
     this.to_string = function () {
-        return _color + ' take color ' + _piece_color + 'from (' + _from_x + ',' + _from_y + ')';
+        var color = _color+1;
+        if(_button_next == true) return 'Player ' + color + 'cliked on NEXT button';
+        return 'Player ' + color + ' take color ' + this.get_string_color_name(_piece_color) + ' from (' + _from_x + ',' + _from_y + ')' + _button_next;
     };
 
     // call init method
-    init(c,fx,fy,p);
+    init(c,fx,fy,p,b);
 };
 
 
@@ -97,35 +128,35 @@ Paletto.Engine = function (t, c) {
             player_1_pieces[i]=0;
             player_2_pieces[i]=0;
         }
-
+        game_board = Paletto.Board;
         // initialize game_board with paletto rules
-        var tmp_piece_color_array = new Array(6);
-        game_board = new Array(6);
-        for(var x = 0; x < 6; x++) {
-            game_board[x] = new Array(6);
-            tmp_piece_color_array[x] = 0;
-        }
-        var cpt_iter;
-        for(x = 0; x < 6; x++){
-            for(var y = 0; y < 6 ; y++){
-                cpt_iter = 0;
-                var tmp_piece_color;
-                // while color generated can't place here
-                do{
-                    // if cpt_iter > 30 => can't finish board! bcs last piece have same color neighbour
-                    if(cpt_iter > 30){
-                        return false;
-                    }
-                    else{
-                        tmp_piece_color = Math.floor(Math.random() * 6);
-                        cpt_iter++;
-                    }
-
-                } while(!is_possible_to_put_piece_color(x,y,tmp_piece_color,tmp_piece_color_array[tmp_piece_color]));
-                tmp_piece_color_array[tmp_piece_color]++;
-                game_board[x][y] = tmp_piece_color;
-            }
-        }
+        //var tmp_piece_color_array = new Array(6);
+        //game_board = new Array(6);
+        //for(var x = 0; x < 6; x++) {
+        //    game_board[x] = new Array(6);
+        //    tmp_piece_color_array[x] = 0;
+        //}
+        //var cpt_iter;
+        //for(x = 0; x < 6; x++){
+        //    for(var y = 0; y < 6 ; y++){
+        //        cpt_iter = 0;
+        //        var tmp_piece_color;
+        //        // while color generated can't place here
+        //        do{
+        //            // if cpt_iter > 30 => can't finish board! bcs last piece have same color neighbour
+        //            if(cpt_iter > 30){
+        //                return false;
+        //            }
+        //            else{
+        //                tmp_piece_color = Math.floor(Math.random() * 6);
+        //                cpt_iter++;
+        //            }
+        //
+        //        } while(!is_possible_to_put_piece_color(x,y,tmp_piece_color,tmp_piece_color_array[tmp_piece_color]));
+        //        tmp_piece_color_array[tmp_piece_color]++;
+        //        game_board[x][y] = tmp_piece_color;
+        //    }
+        //}
         return true;
     };
     // check if piece have neighbour
@@ -169,13 +200,25 @@ Paletto.Engine = function (t, c) {
         return true;
     };
 
+    var next_color = function (color) {
+        return color === Paletto.Color.JOUEUR_2 ? Paletto.Color.JOUEUR_1 : Paletto.Color.JOUEUR_2;
+    };
 
 
 //***************
 // public methods
 // play a move (the move is an instance of XXX.Move class)
+    this.next_player = function(){
+        color = next_color(color);
+        _phase = Paletto.Phase.FIRST_TAKE;
+    };
+
     this.move = function (move) {
-        this.put_piece_to_player(move.from_x(),move.from_y(),move.piece_color(),move.color());
+        if(typeof move == 'object' ){
+            if(move.button_next()) this.next_player();
+            else this.put_piece_to_player(move.from_x(),move.from_y(),move.piece_color(),move.color());
+        }
+
     };
 
     this.put_piece_to_player = function(from_x,from_y,piece_color,color){
@@ -183,6 +226,10 @@ Paletto.Engine = function (t, c) {
         if(color === Paletto.Color.JOUEUR_1){
             player_1_pieces[piece_color]++;
         }
+        else{
+            player_2_pieces[piece_color]++;
+        }
+        _phase = Paletto.Phase.CONTINUE_TAKING;
     };
 
     // return color at xy
@@ -193,6 +240,7 @@ Paletto.Engine = function (t, c) {
     // return how many player have take one color
     this.get_taken_color = function (player,color){
         if(player == Paletto.Color.JOUEUR_1) return player_1_pieces[color];
+        else return player_2_pieces[color];
     };
 
 // get the color of current player
@@ -273,6 +321,14 @@ Paletto.Engine = function (t, c) {
         return o;
     };
 
+    this.current_color = function () {
+        return color;
+    };
+
+    this.current_color_string = function () {
+        return color === Paletto.Color.JOUEUR_1 ? 'Player 1' : 'Player 2';
+    };
+
 // set all attributes using parameter values
 // warning to attributes of object or array type
     this.set = function (p,gb,p1p,p2p) {
@@ -325,10 +381,19 @@ Paletto.Engine = function (t, c) {
         console.log("called paletto/Engine init");
         type  = t;
         color = c;
+        _phase=Paletto.Phase.FIRST_TAKE;
 
+        game_board = Paletto.Board;
+        player_1_pieces = new Array(6);
+        player_2_pieces = new Array(6);
+        for(var i = 0; i < 6; i++){
+            player_1_pieces[i]=0;
+            player_2_pieces[i]=0;
+        }
+        /*
         do{
             // redo initialisation while he can't get full board
-        }while(!initialize_board());
+        }while(!initialize_board());*/
     };
 
 // call init method with two parameters: t, the type of game and c, the color of first player
