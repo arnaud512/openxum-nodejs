@@ -363,30 +363,26 @@ Paletto.Gui = function (c, e, l, g) {
 
     // souris dans rectangle
     var point_in_rectangle = function(x, y, x1, y1, x2, y2, x3, y3, x4, y4) {
-        var rectangle = false, triangle_left = false;
+        var rectangle = false, triangle_left = false, triangle_right = false;
 
-        /*console.log('x1 '+x1+'\n y1 '+y1+'\n x2 '+x2+'\n y2 '+y2+'\n x3 '+x3+'\n y3 '+y3+'\n x4 '+x4+'\n y4 '+y4);
+        var b1 = calc_tri_rea(x, y, x1, y1, x4, y1)<0;
+        var b2 = calc_tri_rea(x, y, x4, y1, x4, y4)<0;
+        var b3 = calc_tri_rea(x, y, x4, y4, x1, y1)<0;
 
-
-        var aire_triangle_left =calc_tri_rea(x1, y1, x4, y1, x4, y4);
-        console.log(aire_triangle_left);
-        var Area1 = calc_tri_rea(x, y, x2, y2, x3, y3);
-        var Area2 = calc_tri_rea(x, y, x1, y1, x3, y3);
-        var Area3 = calc_tri_rea(x, y, x1, y1, x2, y2);
-
-        if((Area1 + Area2 + Area3) > aire_triangle_left) triangle_left = false;
-        else triangle_left =true;*/
+        var a1 = calc_tri_rea(x, y, x3, y2, x2, y2)<0;
+        var a2 = calc_tri_rea(x, y, x2, y2, x3, y3)<0;
+        var a3 = calc_tri_rea(x, y, x3, y3, x3, y2)<0;
 
         if ((x> x4 && x<x3) && (y>y1 &&y<y3)) rectangle = true;
-        ////if ()
-        return (rectangle /*|| triangle_left*/);
+
+        if ((a1 == a2) && (a2 == a3)) triangle_right = true;
+        if ((b1 == b2) && (b2 == b3)) triangle_left = true;
+        return (triangle_left|| rectangle || triangle_right);
     };
-    // calcule aire triangle
-   var calc_tri_rea = function(x1, y1, x2, y2, x3, y3){
-        var det = 0;
-        det = ((x1 - x3) * (y2 - y3)) - ((x2 - x3) * (y1 - y3));
-        return (det / 2);
-    };
+
+    var calc_tri_rea = function(x1, y1, x2, y2, x3, y3){
+        return ((x1 - x3) * (y2 - y3)) - ((x2 - x3) * (y1 - y3));
+    }
 
     // _offsetX + 6 * _deltaX -10
     // return the move that the player has made
@@ -489,10 +485,11 @@ Paletto.Gui = function (c, e, l, g) {
                     var tmp_color_piece = _engine.get_piece_color_from_x_y(xy.x, xy.y);
                     if (tmp_color_piece != -1) {
                         if(_color_piece_played == null || _color_piece_played == tmp_color_piece){
-                            _color_piece_played = tmp_color_piece;
+
                             var list = _engine.get_possible_taken_list();
                             for (var k = 0; k < list.length; k++) {
                                 if (xy.x == list[k].x && xy.y == list[k].y) {
+                                    _color_piece_played = tmp_color_piece;
                                     _x_pos = xy.x;
                                     _y_pos = xy.y;
                                     _color_pos = tmp_color_piece;
