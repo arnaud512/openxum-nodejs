@@ -52,6 +52,7 @@ Paletto.Gui = function (c, e, l, g) {
         _context.strokeStyle = "#757D75";
         roundRect(0, 0, _canvas.width, _canvas.height, 17, false, true);
 
+
         draw_grid_left();
         draw_grid_right();
         draw_grid_center();
@@ -130,7 +131,9 @@ Paletto.Gui = function (c, e, l, g) {
 
                 // Aficher le nb de piece
 
+
                 var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_1, cpt);
+                if(is_animating && cpt === _color_piece_played && _engine.current_color()=== 0) tmp--;
                 _context.fillStyle = "#989898";
                 _context.font="900 30px Arial";
                 _context.beginPath();
@@ -138,6 +141,7 @@ Paletto.Gui = function (c, e, l, g) {
                 _context.closePath();
                 _context.fill();
                 _context.stroke();
+
 
                 cpt++;
             }
@@ -171,6 +175,7 @@ Paletto.Gui = function (c, e, l, g) {
 
                 // Aficher le nb de piece
                 var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_2, x);
+                if(is_animating && x === _color_piece_played && _engine.current_color()=== 1) tmp--;
                 _context.fillStyle = "#989898";
                 _context.font="900 30px Arial";
                 _context.beginPath();
@@ -321,9 +326,9 @@ Paletto.Gui = function (c, e, l, g) {
         if (_engine.phase() == Paletto.Phase.CONTINUE_TAKING) {
             if (_button_hover)_context.fillStyle = "#F7FF3C";
             else _context.fillStyle = "#989898";
-            _context.font = "30px Verdana";
+            _context.font="900 30px Arial";
             _context.beginPath();
-            _context.fillText("Next", 255, 510);
+            _context.fillText("Next", 250.4, 510);
             _context.closePath();
             _context.fill();
         }
@@ -400,13 +405,10 @@ Paletto.Gui = function (c, e, l, g) {
     // Animation
     var animate = function (color, player, pos_x, pos_y) {
         is_animating = true;
-        //console.log("Couleur "+color+"\nJoueur " +player+ "\nPosition x "+pos_x+"\nPosition y "+pos_y);
         //recup position init
         var ini = initial_position();
-        console.log("Couleur "+color+"\nJoueur " +player+"\n cible x"+ ini.x+"\ncible y" + ini.y);
         //recup position cible
         var tar = target_position (player, color);
-        //console.log("Couleur "+color+"\nJoueur " +player+"\n target x"+ tar.x+"\ntarget y" + tar.y);
         _moving_piece_x = ini.x;
         _moving_piece_y = ini.y;
        _id= setInterval(function() {
@@ -421,7 +423,6 @@ Paletto.Gui = function (c, e, l, g) {
         var dist_x = Math.abs(x2-x1);
         var dist_y = Math.abs(y2-y1);
         var diago = Math.sqrt(dist_x*dist_x + dist_y*dist_y);
-        //console.log(dist_x+"\n"+dist_y+"\n"+diago);
 
         draw_piece_colored(_moving_piece_x, _moving_piece_y, _deltaX / 1.8, color, false);
         if (x1< x2){
@@ -438,7 +439,6 @@ Paletto.Gui = function (c, e, l, g) {
         }
        /* _moving_piece_x += (dist_x/diago) * run;
         _moving_piece_y += (dist_y/diago) * run;*/
-        //console.log("\n jlo 2 =>"+_moving_piece_x);
         if (_moving_piece_y>=y2 )  {
             clearInterval(_id);
             is_animating = false;
@@ -476,8 +476,6 @@ Paletto.Gui = function (c, e, l, g) {
                     if (color ==cpt){
                         tar_x = _offsetX + (i - 0.4 + decalage - deca) * _deltaX;
                         tar_y = _offsetY + (j + 5.82 - decalage2 ) * _deltaY
-                        console.log("x : "+tar_x);
-                        console.log("\ny : "+tar_y);
                         return {x:tar_x, y:tar_y};
 
                     }
@@ -523,7 +521,6 @@ Paletto.Gui = function (c, e, l, g) {
             _button_clicked = false;
             return new Paletto.Move(_engine.current_color(),0,0,0,true);
         }
-        console.log('ee');
         return new Paletto.Move(_engine.current_color(),_x_pos,_y_pos, _color_pos,false);
     };
 
@@ -607,7 +604,7 @@ Paletto.Gui = function (c, e, l, g) {
             if(xy){
                 if (xy.x ==-1 && xy.y ==-1){
                     if(_engine.phase()==Paletto.Phase.CONTINUE_TAKING){
-                        console.log("Bouton clic");
+                        //bouton clique
                         _button_clicked = true;
                         _color_piece_played = null;
                         _manager.play();
