@@ -80,7 +80,6 @@ Paletto.Move = function (c,fx,fy,p,b) {
         _from_x = str.charAt(2);
         _from_y = str.charAt(3);
         _button_next = (str.charAt(4)==1);
-        console.log(str);
     };
 
     // build an object representation with all public attributes
@@ -92,7 +91,7 @@ Paletto.Move = function (c,fx,fy,p,b) {
     this.to_string = function () {
         var color = _color+1;
         if(_button_next == true) return 'Player ' + color + 'cliked on NEXT button';
-        return 'Player ' + color + ' take color ' + this.get_string_color_name(_piece_color) + ' from (' + _from_x + ',' + _from_y + ')' + _button_next;
+        return 'Player ' + color + ' take color ' + this.get_string_color_name(_piece_color) + ' from (' + _from_x + ',' + _from_y + ')';
     };
 
     // call init method
@@ -109,6 +108,7 @@ Paletto.Engine = function (t, c) {
 // the variable phase indicated the phase of game : PUT_PIECE, REMOVE_ROW, by example
 // this variable is used by manager
     var _phase;
+
 // all attributes of game
     var type;
     var color;
@@ -118,6 +118,8 @@ Paletto.Engine = function (t, c) {
     var player_2_pieces;
 
     var self = this;
+
+    var taken_color = null;
 
 //private method
     var initialize_board = function (){
@@ -211,12 +213,16 @@ Paletto.Engine = function (t, c) {
     this.next_player = function(){
         color = next_color(color);
         _phase = Paletto.Phase.FIRST_TAKE;
+        taken_color = null;
     };
 
     this.move = function (move) {
         if(typeof move == 'object' ){
             if(move.button_next()) this.next_player();
-            else this.put_piece_to_player(move.from_x(),move.from_y(),move.piece_color(),move.color());
+            else {
+                this.put_piece_to_player(move.from_x(),move.from_y(),move.piece_color(),move.color());
+                taken_color = move.piece_color();
+            }
         }
 
     };
@@ -281,25 +287,64 @@ Paletto.Engine = function (t, c) {
 
     // true if piece can be taken
     this.possible_taken_piece = function(x,y){
+        var pt= false, pl = false, pr = false, pb = false;
         if (game_board[x][y]==-1) return false;
+        if (taken_color != null && game_board[x][y] != taken_color) return false;
         var cpt = 4;
         if(check_piece_top(x,y)){
-            if(game_board[x][y-1] != -1) cpt--;
+            if(game_board[x][y-1] != -1){
+                cpt--;
+                pt = true;
+            }
         }
         if(check_piece_left(x,y)){
-            if(game_board[x-1][y] != -1) cpt--;
+            if(game_board[x-1][y] != -1){
+                cpt--;
+                pl = true;
+            }
         }
         if(check_piece_right(x,y)){
-            if(game_board[x+1][y] != -1) cpt--;
+            if(game_board[x+1][y] != -1){
+                cpt--;
+                pr = true;
+            }
         }
         if(check_piece_bottom(x,y)){
-            if(game_board[x][y+1] != -1) cpt--;
+            if(game_board[x][y+1] != -1){
+                cpt--;
+                pb = true;
+            }
         }
+
+        // si 2 alors vérifier si l'opposé diagonal est non-vide
+        if(cpt == 2){
+            return this.check_is_split(x,y,pt,pl,pr,pb);
+        }
+
         return (cpt >=2);
+    };
+
+    this.check_is_split = function(x,y,pt,pl,pr,pb){
+        // top & left
+        if(pt && pl && game_board[x-1][y-1] == -1) return false;
+        // top & right
+        if(pt && pr && game_board[x+1][y-1] == -1) return false;
+        // bottom & left
+        if(pb && pl && game_board[x-1][y+1] == -1) return false;
+        // bottom & right
+        if(pb && pr && game_board[x+1][y+1] == -1) return false;
+        // top & bottom
+        if(pt && pb && !pl && !pr) return false;
+        // left & right
+        if(pl && pr && !pt && !pb) return false;
+
+        //
+        return true;
     };
 
     // return possible list
     this.get_possible_taken_list = function() {
+        console.log("-----");
         var list = [];
         for(var x = 0; x < 6; x++){
             for(var y = 0; y < 6 ; y++){
@@ -352,27 +397,27 @@ Paletto.Engine = function (t, c) {
 //***************
 // methods for MCTS Artificial Intelligence
 // return the list of possible moves
-    this.get_possible_move_list = function () {
-        return this.get_possible_taken_list();
-    };
-
-// get the number of possible moves in current list
-    this.get_possible_move_number = function(list) {
-        return this.get_possible_taken_list().length;
-    };
-
-// remove first move in possible move list
-    this.remove_first_possible_move = function(list) {
-        var L = list;
-
-        L.list.shift();
-        return L;
-    };
-
-// select a move in list with specified index
-    this.select_move = function (list, index) {
-        return new Paletto.Move(list, list.list[index]);
-    };
+//    this.get_possible_move_list = function () {
+//        return this.get_possible_taken_list();
+//    };
+//
+//// get the number of possible moves in current list
+//    this.get_possible_move_number = function(list) {
+//        return this.get_possible_taken_list().length;
+//    };
+//
+//// remove first move in possible move list
+//    this.remove_first_possible_move = function(list) {
+//        var L = list;
+//
+//        L.list.shift();
+//        return L;
+//    };
+//
+//// select a move in list with specified index
+//    this.select_move = function (list, index) {
+//        return new Paletto.Move(list, list.list[index]);
+//    };
 
 //***************
 // init method is called when an instance is created
