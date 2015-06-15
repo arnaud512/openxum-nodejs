@@ -30,6 +30,9 @@ Paletto.Gui = function (c, e, l, g) {
     var _button_clicked = false;
     var _color_piece_played = null;
 
+    var _cur_play=null;
+    var _cur_colo=null;
+
     var _moving_piece_x=null;
     var _moving_piece_y=null;
     var _id=null;
@@ -58,7 +61,6 @@ Paletto.Gui = function (c, e, l, g) {
         draw_grid_center();
         draw_button();
 
-        //console.log("x: " + _x_pos + "y: " + _y_pos);
 
         //draw_possible_piece();
 
@@ -130,8 +132,6 @@ Paletto.Gui = function (c, e, l, g) {
                 draw_piece_colored(_offsetX + (i - 0.4 + decalage - deca) * _deltaX, _offsetY + (j + 5.82 - decalage2 ) * _deltaY, _deltaX / 1.8, cpt, is_bordered);
 
                 // Aficher le nb de piece
-
-
                 var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_1, cpt);
                 if(is_animating && cpt === _color_piece_played && _engine.current_color()=== 0) tmp--;
                 _context.fillStyle = "#989898";
@@ -175,7 +175,8 @@ Paletto.Gui = function (c, e, l, g) {
 
                 // Aficher le nb de piece
                 var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_2, x);
-                if(is_animating && x === _color_piece_played && _engine.current_color()=== 1) tmp--;
+
+                if(is_animating && (x === _color_piece_played || x === _cur_colo) && (_engine.current_color()=== 1 || _cur_play=== 1)) tmp--;
                 _context.fillStyle = "#989898";
                 _context.font="900 30px Arial";
                 _context.beginPath();
@@ -323,7 +324,7 @@ Paletto.Gui = function (c, e, l, g) {
         _context.fill();
         _context.stroke();
 
-        if (_engine.phase() == Paletto.Phase.CONTINUE_TAKING) {
+        if (_engine.phase() == Paletto.Phase.CONTINUE_TAKING && _engine.current_color()=== _color) {
             if (_button_hover)_context.fillStyle = "#F7FF3C";
             else _context.fillStyle = "#989898";
             _context.font="900 30px Arial";
@@ -443,6 +444,8 @@ Paletto.Gui = function (c, e, l, g) {
             clearInterval(_id);
             is_animating = false;
             _manager.redraw();
+            _cur_play = null;
+            _cur_colo = null;
         }
     };
 
@@ -514,6 +517,13 @@ Paletto.Gui = function (c, e, l, g) {
         }
     };
 
+    // converti coordonné en position réelle
+    var convert_in_pos = function (x, y){
+        var tmp_x = _offsetX + (x + 0.5) * _deltaX;
+        var tmp_y =  _offsetY + (y -0.2) * _deltaY-9;
+        return {x:tmp_x, y:tmp_y}
+    }
+
     // _offsetX + 6 * _deltaX -10
     // return the move that the player has made
     this.get_move = function () {
@@ -537,7 +547,31 @@ Paletto.Gui = function (c, e, l, g) {
     // apply a move and animate
     // if no animation, call manager.play
     this.move = function (move, color) {
+        if(!move.button_next() && is_animating==false){
+
+            var tmp = convert_in_pos(move.from_x(), move.from_y());
+
+
+            _x_pos = move.from_x();
+            _y_pos = move.from_y();
+            _color_piece_played = move.piece_color();
+            _cur_play = color;
+            _cur_colo = move.piece_color();
+
+            console.log("test " + _cur_colo);
+            if (!is_animating){
+                animate(move.piece_color(),1,tmp.x,tmp.y);
+            }
+            else {
+                console.log("TEST");
+            }
+
+            _color_piece_played = null;
+
+        }
+
         _manager.play();
+
     };
 
     // ready is called when opponent is present (online case)
