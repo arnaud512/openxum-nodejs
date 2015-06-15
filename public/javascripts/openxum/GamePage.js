@@ -38,8 +38,8 @@ OpenXum.GamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, opi, r) 
         engine = new namespace.Engine(mode, color);
     };
 
-    var build_gui = function (namespace, color, game_id) {
-        gui = new namespace.Gui(color, engine, game_id === '-1', opponent === gui);
+    var build_gui = function (namespace, color, game_id,game_type) {
+        gui = new namespace.Gui(color, engine, game_id === '-1', game_type == 'gui' );
     };
 
     var build_move_list_modal = function () {
@@ -160,7 +160,7 @@ OpenXum.GamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, opi, r) 
         });
 
         build_engine(namespace, mode, first_color);
-        build_gui(namespace, color, game_id);
+        build_gui(namespace, color, game_id,game_type);
         build_opponent(namespace, color, game_type, game_id, opponent_color, username, owner_id, opponent_id);
         build_manager(namespace);
         set_gui();
