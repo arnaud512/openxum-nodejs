@@ -412,6 +412,5 @@
 	"there are no adjacent pieces on two sides (at start only the corner pieces may be taken (Fig 2)": "there are no adjacent pieces on two sides (at start only the corner pieces may be taken (Fig 2)",
 	"and all remaining pieces are still connected horizontally and vertically after the move (Fig 3)": "and all remaining pieces are still connected horizontally and vertically after the move (Fig 3)",
 	"(Fig 2) A starting position. The first player may take one or both black pieces, or the yellow one, or the white one. All other pieces have only one free side or they are surrounded completely and therefore unreachable.": "(Fig 2) A starting position. The first player may take one or both black pieces, or the yellow one, or the white one. All other pieces have only one free side or they are surrounded completely and therefore unreachable.",
-	"(Fig 3) All pieces marked green are reachable. The blue piece in the middle of the board may not be taken (although it has 2 free sides), because it connects other pieces.": "(Fig 3) All pieces marked green are reachable. The blue piece in the middle of the board may not be taken (although it has 2 free sides), because it connects other pieces.",
-	" ": " "
+	"(Fig 3) All pieces marked green are reachable. The white piece in the middle of the board may not be taken (although it has 2 free sides), because it connects other pieces.": "(Fig 3) All pieces marked green are reachable. The white piece in the middle of the board may not be taken (although it has 2 free sides), because it connects other pieces."
 }
