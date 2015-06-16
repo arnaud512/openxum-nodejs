@@ -191,7 +191,6 @@ Paletto.Gui = function (c, e, l, g) {
 
         }
 
-
     };
     // design gris en bas
     var draw_rec = function () {
@@ -324,7 +323,7 @@ Paletto.Gui = function (c, e, l, g) {
         _context.fill();
         _context.stroke();
 
-        if (_engine.phase() == Paletto.Phase.CONTINUE_TAKING && _engine.current_color()=== _color) {
+        if (_engine.phase() == Paletto.Phase.CONTINUE_TAKING && (_engine.current_color()=== _color || _gui)) {
             if (_button_hover)_context.fillStyle = "#F7FF3C";
             else _context.fillStyle = "#989898";
             _context.font="900 30px Arial";
@@ -547,32 +546,20 @@ Paletto.Gui = function (c, e, l, g) {
     // apply a move and animate
     // if no animation, call manager.play
     this.move = function (move, color) {
-        if(!move.button_next() && is_animating==false){
 
+        if(!move.button_next() && is_animating==false && (_engine.game_type()=="gui"||_engine.game_type()==="ai")){
             var tmp = convert_in_pos(move.from_x(), move.from_y());
-
-
             _x_pos = move.from_x();
             _y_pos = move.from_y();
             _color_piece_played = move.piece_color();
             _cur_play = color;
             _cur_colo = move.piece_color();
-
-            console.log("test " + _cur_colo);
-            if (!is_animating){
-                animate(move.piece_color(),1,tmp.x,tmp.y);
-            }
-            else {
-                console.log("TEST");
-            }
-
+            animate(move.piece_color(),1,tmp.x,tmp.y);
             _color_piece_played = null;
-
         }
-
-        _manager.play();
-
+        else _manager.play();
     };
+
 
     // ready is called when opponent is present (online case)
     this.ready = function (r) {

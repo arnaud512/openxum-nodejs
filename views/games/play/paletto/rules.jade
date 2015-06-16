@@ -15,7 +15,8 @@ block body
                     ul
                         li #{__("Gameboard with 36 spaces")}
                         li #{__("36 colored pieces (6 colors, 6 pieces each)")}
-                    img(src="/images/paletto/rules_1.png", class="img-responsive", alt="image générale paletto")
+                    div(style="text-align:center")
+                        img(src="/images/paletto/paletto_1.png", width="400px", alt="image générale paletto")
                     br
 
                     h4 #{__("Aim")}
@@ -30,9 +31,12 @@ block body
                     ul
                         li #{__("there are no adjacent pieces on two sides (at start only the corner pieces may be taken (Fig 2)")}
                         li #{__("and all remaining pieces are still connected horizontally and vertically after the move (Fig 3)")}
-
-                    img(src="/images/paletto/rules_2.png", class="img-responsive", alt="regle 1 paletto")
-                    | #{__("(Fig 2) A starting position. The first player may take one or both black pieces, or the yellow one, or the white one. All other pieces have only one free side or they are surrounded completely and therefore unreachable.")}
-                    
-                    img(src="/images/paletto/rules_3.png", class="img-responsive", alt="regle 2 paletto")
-                    | #{__("(Fig 3) All pieces marked green are reachable. The blue piece in the middle of the board may not be taken (although it has 2 free sides), because it connects other pieces.")}
+                    div(style="text-align:center")
+                        img(src="/images/paletto/paletto_2.png",width="400px", alt="regle 1 paletto")
+                    p(style="width:400px;margin:auto;")
+                        | #{__("(Fig 2) A starting position. The first player may take one or both black pieces, or the yellow one, or the white one. All other pieces have only one free side or they are surrounded completely and therefore unreachable.")}
+                    br
+                    div(style="text-align:center")
+                        img(src="/images/paletto/paletto_3.png",width="400px", alt="regle 2 paletto")
+                    p(style="width:400px;margin:auto;")
+                        | #{__("(Fig 3) All pieces marked green are reachable. The blue piece in the middle of the board may not be taken (although it has 2 free sides), because it connects other pieces.")}
