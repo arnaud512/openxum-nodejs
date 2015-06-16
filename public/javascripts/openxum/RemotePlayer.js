@@ -21,8 +21,8 @@ OpenXum.RemotePlayer = function (c, e, u, o, g) {
         _connection.onmessage = function (message) {
             var msg = JSON.parse(message.data);
             var move;
-
             if (msg.type === 'start') {
+                if(msg.hasOwnProperty('game_board')) _manager.engine().board_parse(msg.game_board);
                 _manager.ready(true);
             } else if (msg.type === 'disconnect') {
                 _manager.ready(false);
@@ -40,14 +40,27 @@ OpenXum.RemotePlayer = function (c, e, u, o, g) {
                 console.log('error connection');
             } else {
                 console.log('connecting ' + _uid + ' ...');
+                var msg = null;
+                if(_that.get_name() == 'paletto'){
+                    msg = {
+                        type: 'play',
+                        user_id: _uid,
+                        opponent_id: _opponentID,
+                        game_id: _gameID,
+                        game_type: _that.get_name(),
+                        game_board: _manager.engine().init_with_return_string()
+                    };
+                }
+                else{
+                    msg = {
+                        type: 'play',
+                        user_id: _uid,
+                        opponent_id: _opponentID,
+                        game_id: _gameID,
+                        game_type: _that.get_name()
+                    };
+                }
 
-                var msg = {
-                    type: 'play',
-                    user_id: _uid,
-                    opponent_id: _opponentID,
-                    game_id: _gameID,
-                    game_type: _that.get_name()
-                };
 
                 _connection.send(JSON.stringify(msg));
                 clearInterval(loop);

@@ -187,7 +187,13 @@ exports.Server = function (app) {
             opponent_id: msg.opponent_id
         };
 
-        var response = { type: 'start' };
+        var response = null;
+        if(msg.hasOwnProperty('game_board')){
+            response = { type: 'start' , game_board: msg.game_board};
+        }
+        else{
+            response = { type: 'start'};
+        }
 
         if (msg.opponent_id in playingClients) {
             playingClients[msg.user_id].send(JSON.stringify(response));

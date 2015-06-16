@@ -101,7 +101,7 @@ Paletto.Move = function (c,fx,fy,p,b) {
 
 
 
-Paletto.Engine = function (t, c) {
+Paletto.Engine = function (t, c, gt) {
 
 //***************
 // private attributes
@@ -113,6 +113,7 @@ Paletto.Engine = function (t, c) {
     var type;
     var color;
 
+    var game_type;
     var game_board;
     var player_1_pieces;
     var player_2_pieces;
@@ -123,44 +124,55 @@ Paletto.Engine = function (t, c) {
 
 //private method
     var initialize_board = function (){
-        //initialize player piece
+        var tmp_piece_color_array = new Array(6);
+        game_board = new Array(6);
+        for(var x = 0; x < 6; x++) {
+            game_board[x] = new Array(6);
+            tmp_piece_color_array[x] = 0;
+        }
+        var cpt_iter;
+        for(x = 0; x < 6; x++){
+            for(var y = 0; y < 6 ; y++){
+                cpt_iter = 0;
+                var tmp_piece_color;
+                // while color generated can't place here
+                do{
+                    // if cpt_iter > 30 => can't finish board! bcs last piece have same color neighbour
+                    if(cpt_iter > 30){
+                        return false;
+                    }
+                    else{
+                        tmp_piece_color = Math.floor(Math.random() * 6);
+                        cpt_iter++;
+                    }
+
+                } while(!is_possible_to_put_piece_color(x,y,tmp_piece_color,tmp_piece_color_array[tmp_piece_color]));
+                tmp_piece_color_array[tmp_piece_color]++;
+                game_board[x][y] = tmp_piece_color;
+            }
+        }
+        return true;
+    };
+
+    var init_board_array = function(){
         player_1_pieces = new Array(6);
         player_2_pieces = new Array(6);
         for(var i = 0; i < 6; i++){
             player_1_pieces[i]=0;
             player_2_pieces[i]=0;
         }
-        game_board = Paletto.Board;
-        // initialize game_board with paletto rules
-        //var tmp_piece_color_array = new Array(6);
-        //game_board = new Array(6);
-        //for(var x = 0; x < 6; x++) {
-        //    game_board[x] = new Array(6);
-        //    tmp_piece_color_array[x] = 0;
-        //}
-        //var cpt_iter;
-        //for(x = 0; x < 6; x++){
-        //    for(var y = 0; y < 6 ; y++){
-        //        cpt_iter = 0;
-        //        var tmp_piece_color;
-        //        // while color generated can't place here
-        //        do{
-        //            // if cpt_iter > 30 => can't finish board! bcs last piece have same color neighbour
-        //            if(cpt_iter > 30){
-        //                return false;
-        //            }
-        //            else{
-        //                tmp_piece_color = Math.floor(Math.random() * 6);
-        //                cpt_iter++;
-        //            }
-        //
-        //        } while(!is_possible_to_put_piece_color(x,y,tmp_piece_color,tmp_piece_color_array[tmp_piece_color]));
-        //        tmp_piece_color_array[tmp_piece_color]++;
-        //        game_board[x][y] = tmp_piece_color;
-        //    }
-        //}
-        return true;
+        game_board = new Array(6);
+        for(var x = 0; x < 6; x++) {
+            game_board[x] = new Array(6);
+        }
+        for(x = 0; x < 6; x++) {
+            for (var y = 0; y < 6; y++) {
+                game_board[x][y]=-1;
+            }
+        }
     };
+
+
     // check if piece have neighbour
     var check_piece_top = function (x,y){
         return (y != 0);
@@ -216,6 +228,37 @@ Paletto.Engine = function (t, c) {
         taken_color = null;
     };
 
+    this.board_to_string = function(){
+        var str = '';
+        for(var x = 0; x < 6; x++){
+            for(var y = 0; y < 6 ; y++) {
+                str += game_board[x][y];
+            }
+        }
+        return str;
+    };
+
+    this.init_with_return_string = function(){
+        do{
+            // redo initialisation while he can't get full board
+        }while(!initialize_board());
+
+        return this.board_to_string();
+    };
+
+    this.board_parse = function(str){
+        var cpt = 0;
+        //game_board = new Array(6);
+        for(var x = 0; x < 6; x++) {
+            //game_board[x] = new Array(6);
+            for (var y = 0; y < 6; y++) {
+                game_board[x][y] = parseInt(str.charAt(cpt));
+                cpt++;
+            }
+
+        }
+    };
+
     this.move = function (move) {
         if(typeof move == 'object' ){
             if(move.button_next()) this.next_player();
@@ -257,6 +300,10 @@ Paletto.Engine = function (t, c) {
 // get the phase of game
     this.phase = function() {
         return _phase;
+    };
+
+    this.game_type = function(){
+        return game_type;
     };
 
 // verify if game is finished
@@ -344,7 +391,6 @@ Paletto.Engine = function (t, c) {
 
     // return possible list
     this.get_possible_taken_list = function() {
-        console.log("-----");
         var list = [];
         for(var x = 0; x < 6; x++){
             for(var y = 0; y < 6 ; y++){
@@ -421,26 +467,22 @@ Paletto.Engine = function (t, c) {
 
 //***************
 // init method is called when an instance is created
-    var init = function(t, c) {
+    var init = function(t, c, gt) {
 
         console.log("called paletto/Engine init");
         type  = t;
         color = c;
+        game_type = gt;
         _phase=Paletto.Phase.FIRST_TAKE;
 
-        game_board = Paletto.Board;
-        player_1_pieces = new Array(6);
-        player_2_pieces = new Array(6);
-        for(var i = 0; i < 6; i++){
-            player_1_pieces[i]=0;
-            player_2_pieces[i]=0;
+        init_board_array();
+        if(game_type == 'gui' || game_type == 'ai'){
+            do{
+                // redo initialisation while he can't get full board
+            }while(!initialize_board());
         }
-        /*
-        do{
-            // redo initialisation while he can't get full board
-        }while(!initialize_board());*/
     };
 
 // call init method with two parameters: t, the type of game and c, the color of first player
-    init(t, c);
+    init(t, c ,gt);
 };
