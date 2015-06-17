@@ -176,7 +176,7 @@ Paletto.Gui = function (c, e, l, g) {
                 // Aficher le nb de piece
                 var tmp = _engine.get_taken_color(Paletto.Color.JOUEUR_2, x);
 
-                if(is_animating && (x === _color_piece_played || x === _cur_colo) && (_engine.current_color()=== 1 || _cur_play=== 1)) tmp--;
+                if(is_animating && (x === _color_piece_played) && (_engine.current_color()=== 1)) tmp--;
                 _context.fillStyle = "#989898";
                 _context.font="900 30px Arial";
                 _context.beginPath();
@@ -547,14 +547,14 @@ Paletto.Gui = function (c, e, l, g) {
     // if no animation, call manager.play
     this.move = function (move, color) {
 
-        if(!move.button_next() && is_animating==false){
+        if(!move.button_next() && is_animating==false && (_engine.game_type()=="ai" ||  _engine.game_type()=="gui")){
             var tmp = convert_in_pos(move.from_x(), move.from_y());
             _x_pos = move.from_x();
             _y_pos = move.from_y();
             _color_piece_played = move.piece_color();
             _cur_play = color;
             _cur_colo = move.piece_color();
-            animate(move.piece_color(),1,tmp.x,tmp.y);
+            animate(move.piece_color(),color,tmp.x,tmp.y);
             _color_piece_played = null;
         }
          _manager.play();
