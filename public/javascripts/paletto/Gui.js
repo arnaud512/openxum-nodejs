@@ -547,7 +547,7 @@ Paletto.Gui = function (c, e, l, g) {
     // if no animation, call manager.play
     this.move = function (move, color) {
 
-        if(!move.button_next() && is_animating==false && (_engine.game_type()=="gui"||_engine.game_type()==="ai")){
+        if(!move.button_next() && is_animating==false){
             var tmp = convert_in_pos(move.from_x(), move.from_y());
             _x_pos = move.from_x();
             _y_pos = move.from_y();
@@ -557,7 +557,7 @@ Paletto.Gui = function (c, e, l, g) {
             animate(move.piece_color(),1,tmp.x,tmp.y);
             _color_piece_played = null;
         }
-        else _manager.play();
+         _manager.play();
     };
 
 
