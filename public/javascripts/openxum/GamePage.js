@@ -9,6 +9,8 @@ OpenXum.GamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, opi, r) 
     var manager;
     var opponent;
 
+    var generated_board = null;
+
 // private methods
     var build_buttons = function () {
         var row = $('<div/>', { class: 'row' });
@@ -34,8 +36,14 @@ OpenXum.GamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, opi, r) 
         row.appendTo($('#main'));
     };
 
-    var build_engine = function (namespace, mode, color,name,game_type) {
-        if(name == 'paletto') engine = new namespace.Engine(mode, color , game_type);
+    var build_engine = function (namespace, mode, color,name,game_type,color_player) {
+        if(name == 'paletto') {
+            if(generated_board == null){
+                var tmp_engine = new namespace.Engine(mode, color , game_type, null);
+                generated_board = tmp_engine.board_to_string();
+            }
+            engine = new namespace.Engine(mode, color , game_type, generated_board);
+        }
         else engine = new namespace.Engine(mode, color);
     };
 
@@ -160,7 +168,7 @@ OpenXum.GamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, opi, r) 
             window.location.href = '/games/play/?game=' + name;
         });
 
-        build_engine(namespace, mode, first_color, name,game_type);
+        build_engine(namespace, mode, first_color, name,game_type,color);
         build_gui(namespace, color, game_id,game_type);
         build_opponent(namespace, color, game_type, game_id, opponent_color, username, owner_id, opponent_id);
         build_manager(namespace);
@@ -175,8 +183,7 @@ OpenXum.GamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, opi, r) 
         }
         $("#replay").click(function () {
             var moves = manager.get_moves();
-
-            build_engine(namespace, mode, first_color);
+            build_engine(namespace, mode, first_color,name,game_type);
             build_gui(namespace, color, game_id);
             build_opponent(namespace, color, game_type, game_id, opponent_color, username, owner_id, opponent_id);
             build_manager(namespace);

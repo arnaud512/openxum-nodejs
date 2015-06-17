@@ -101,7 +101,7 @@ Paletto.Move = function (c,fx,fy,p,b) {
 
 
 
-Paletto.Engine = function (t, c, gt) {
+Paletto.Engine = function (t, c, gt, bs) {
 
 //***************
 // private attributes
@@ -123,11 +123,9 @@ Paletto.Engine = function (t, c, gt) {
     var taken_color = null;
 
 //private method
-    var initialize_board = function (){
+    var initialize_board_piece = function(){
         var tmp_piece_color_array = new Array(6);
-        game_board = new Array(6);
         for(var x = 0; x < 6; x++) {
-            game_board[x] = new Array(6);
             tmp_piece_color_array[x] = 0;
         }
         var cpt_iter;
@@ -236,14 +234,6 @@ Paletto.Engine = function (t, c, gt) {
             }
         }
         return str;
-    };
-
-    this.init_with_return_string = function(){
-        do{
-            // redo initialisation while he can't get full board
-        }while(!initialize_board());
-
-        return this.board_to_string();
     };
 
     this.board_parse = function(str){
@@ -467,22 +457,25 @@ Paletto.Engine = function (t, c, gt) {
 
 //***************
 // init method is called when an instance is created
-    var init = function(t, c, gt) {
+    var init = function(t, c, gt, bs) {
 
         console.log("called paletto/Engine init");
         type  = t;
         color = c;
         game_type = gt;
         _phase=Paletto.Phase.FIRST_TAKE;
-
         init_board_array();
-        if(game_type == 'gui' || game_type == 'ai'){
+        if( bs == null){
             do{
                 // redo initialisation while he can't get full board
-            }while(!initialize_board());
+            }while(!initialize_board_piece());
         }
+        else{
+            self.board_parse(bs);
+        }
+
     };
 
 // call init method with two parameters: t, the type of game and c, the color of first player
-    init(t, c ,gt);
+    init(t, c ,gt ,bs);
 };

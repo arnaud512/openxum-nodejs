@@ -48,7 +48,7 @@ OpenXum.RemotePlayer = function (c, e, u, o, g) {
                         opponent_id: _opponentID,
                         game_id: _gameID,
                         game_type: _that.get_name(),
-                        game_board: _manager.engine().init_with_return_string()
+                        game_board: _manager.engine().board_to_string()
                     };
                 }
                 else{
